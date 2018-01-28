@@ -47,6 +47,8 @@
 #define FOSC    (7370000ULL)
 #define FCY     (FOSC/2)
 
+#define DELAY_LENGTH 5
+
 #include <libpic30.h>
 #include <stdio.h>
 #include <math.h>
@@ -73,7 +75,7 @@ int main(void) {
     stop_fogger();
         
     //briefly blow fan                 
-    set_pwm_setpoint(25000);
+    set_pwm_setpoint(4000);
     start_pwm();
     __delay_ms(1000);
     stop_pwm();
@@ -86,6 +88,8 @@ int main(void) {
    
     transmit_string("reset... \n\r");    
       
+    //Run fan continously
+    start_pwm();
     while(1){                          
         float humidity = sht_read_humidity();        
         float temp = sht_read_temp();                    
@@ -96,22 +100,18 @@ int main(void) {
         log_entry(humidity,temp);         
 
         int run_time = run_loop();
-        int on_time = get_fan_on_time();
-        if(run_time > (period - on_time)){
-            run_time = period - on_time;
-        }
-                     
+             
+        //run fogger
         start_fogger();          
         __delay_ms(run_time);
         stop_fogger();        
-
-        //briefly blow fan           
-        start_pwm();
-        __delay_ms(on_time);
-        stop_pwm();
-
-        __delay_ms(period - (run_time + on_time));
-        serial_run_loop();
+  
+        int count = (period - run_time)/DELAY_LENGTH;
+        int index;
+        for(index=0;index<count;index++){
+            __delay_ms(DELAY_LENGTH);
+            serial_run_loop();
+        }                
     }     
     
     return 0;

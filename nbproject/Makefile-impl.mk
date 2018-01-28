@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=HumidityController.X
+PROJECTNAME=humiditycontroller
 
 # Active Configuration
 DEFAULTCONF=default
